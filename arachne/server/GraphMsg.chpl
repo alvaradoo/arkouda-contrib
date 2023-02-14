@@ -1182,8 +1182,52 @@ module GraphMsg {
         return new MsgTuple(repMsg, MsgType.NORMAL);
     } // end of addEdgesFromMsg
 
+    /**
+    * Return the edge arrays for a particular graph for further analysis.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc edgesMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var ag = gEntry.graph;
+
+        // Extract the edge arrays.
+        var timer:stopwatch;
+        timer.start();
+        var src = toSymEntry(ag.getSRC(), int).a;
+        var dst = toSymEntry(ag.getDST(), int).a;
+
+        // Add new copies of each to the symbol table.
+        var repMsg = "";
+        var attrNameSrc = st.nextName();
+        var attrEntrySrc = new shared SymEntry(src); 
+        st.addEntry(attrNameSrc, attrEntrySrc);
+        repMsg += "created " + st.attrib(attrNameSrc) + "+ ";
+
+        var attrNameDst = st.nextName();
+        var attrEntryDst = new shared SymEntry(dst); 
+        st.addEntry(attrNameDst, attrEntryDst);
+        repMsg += "created " + st.attrib(attrNameDst);
+
+        timer.stop();
+        outMsg = "Extracting edges takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of addEdgesFromMsg
+
     use CommandMap;
     registerFunction("readKnownEdgelist", readKnownEdgelistMsg, getModuleName());
     registerFunction("readEdgelist", readEdgelistMsg, getModuleName());
     registerFunction("addEdgesFrom", addEdgesFromMsg, getModuleName());
+    registerFunction("edges", edgesMsg, getModuleName());
 }

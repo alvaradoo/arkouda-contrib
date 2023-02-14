@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import cast, Tuple, Union
 from typeguard import typechecked
+import arkouda as ak
 from arkouda.client import generic_msg
 from arkouda.pdarrayclass import pdarray, create_pdarray
 from arkouda.logger import getArkoudaLogger
@@ -135,6 +136,33 @@ class Graph:
             The number of edges in the graph.
         """
         return self.n_edges
+
+    def nodes(self) -> pdarray:
+        """Returns the nodes of the graph. Currently defaults to returning how the vertices are 
+        stored in the server, not the original label names. This will be changed when we implement
+        a mapping of original label names to server label names. 
+
+        Returns
+        -------
+        (src, dst): tuple.
+            The arrays containing the edge information of a graph.
+        """
+        return ak.array([i for i in range(self.n_vertices)])
+
+    def edges(self) -> Tuple[pdarray, pdarray]:
+        """Returns a tuple of pdarrays src and dst.
+
+        Returns
+        -------
+        (src, dst): tuple.
+            The arrays containing the edge information of a graph.
+        """
+        cmd = "edges"
+        args = {"GraphName":self.name}
+        repMsg = generic_msg(cmd=cmd, args=args)
+        returned_vals = (cast(str, repMsg).split('+'))
+
+        return (create_pdarray(returned_vals[0]), create_pdarray(returned_vals[1]))
 
     def add_edges_from(self, akarray_src: pdarray, akarray_dst: pdarray, 
                        akarray_weight: Union[None, pdarray] = None) -> None:

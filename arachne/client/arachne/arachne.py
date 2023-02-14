@@ -11,7 +11,10 @@ __all__ = ["Graph",
            "DiGraph",
            "read_known_edgelist",
            "read_edgelist",
-           "bfs_layers"
+           "bfs_layers",
+           "triangles",
+           "triangle_centrality",
+           "connected_components"
            ]
 
 class Graph:
@@ -408,23 +411,23 @@ def read_edgelist(path: str, weighted: bool = False, directed: bool = False, com
 @typechecked
 def bfs_layers(graph: Graph, source: int) -> pdarray:
     """ This function generates the breadth-first search sequence of the vertices in a given graph
-        starting from the given source vertex.
+    starting from the given source vertex.
         
-        Returns
-        -------
-        pdarray
-            The depth of each vertex in relation to the source vertex. 
-        
-        See Also
-        --------
-        
-        Notes
-        -----
-        
-        Raises
-        ------  
-        RuntimeError
-        """
+    Returns
+    -------
+    pdarray
+        The depth of each vertex in relation to the source vertex. 
+    
+    See Also
+    --------
+    
+    Notes
+    -----
+    
+    Raises
+    ------  
+    RuntimeError
+    """
     cmd = "segmentedGraphBFS"
     args = { "NumOfVertices":graph.n_vertices,
              "NumOfEdges":graph.n_edges,
@@ -434,4 +437,132 @@ def bfs_layers(graph: Graph, source: int) -> pdarray:
              "Source":source}
 
     repMsg = generic_msg(cmd=cmd, args=args)
+    return create_pdarray(repMsg)
+
+###################################################################################################
+# EVERYTHING BELOW THIS CAN BE IGNORED FOR NOW, CHAPEL CODE STILL NEEDS TO BE SEVERELY CLEANED UP #
+###################################################################################################
+
+@typechecked
+def triangle_centrality(graph: Graph) -> pdarray:
+    """ This function returns the triangle centrality of each vertex in a given graph.
+        
+    Returns
+    -------
+    pdarray
+        The triangle centrality value of each vertex.
+    
+    See Also
+    --------
+    
+    Notes
+    -----
+    
+    Raises
+    ------  
+    RuntimeError
+    """
+    cmd="segmentedGraphTriCtr"
+    args = { "NumOfVertices":graph.n_vertices,
+                "NumOfEdges":graph.n_edges,
+                "Directed":graph.directed,
+                "Weighted": graph.weighted,
+                "GraphName":graph.name}
+    
+    repMsg = generic_msg(cmd=cmd,args=args)
+    return create_pdarray(repMsg)
+
+@typechecked
+def connected_components(graph: Graph) -> pdarray:
+    """ This function generates the connected components of a given graph.
+    
+    Returns
+    -------
+    pdarray
+        The label of the component each vertex belongs to.
+    
+    See Also
+    --------
+    
+    Notes
+    -----
+    
+    Raises
+    ------  
+    RuntimeError
+    """
+    cmd = "segmentedGraphCC"
+    args = { "NumOfVertices":graph.n_vertices,
+             "NumOfEdges":graph.n_edges,
+             "Directed":graph.directed,
+             "Weighted":graph.weighted,
+             "GraphName":graph.name}
+    
+    repMsg = generic_msg(cmd=cmd, args=args)
+    return create_pdarray(repMsg)
+
+@typechecked
+def triangles(graph: Graph, vertexArray: pdarray) -> pdarray:
+    """
+    This function will return the number of triangles in a static graph if the vertexArray is [-1], 
+    otherwise, it will return the number of triangles containing the given vertex. If the input vertexArray is 
+    [0,10,40] and return array is [3,20,5], it means that there are 3 triangles contain vertex 0; 20 triangles 
+    contains vertex 10; 5 triangles contain vertex 40.
+    
+    Returns
+    -------
+    pdarray
+        The total number of triangles.
+    
+    See Also
+    --------
+    
+    Notes
+    -----
+    
+    Raises
+    ------  
+    RuntimeError
+    """
+    cmd="segmentedGraphTri"
+    args = { "NumOfVertices":graph.n_vertices,
+             "NumOfEdges":graph.n_edges,
+             "Directed":graph.directed,
+             "Weighted": graph.weighted,
+             "GraphName":graph.name,
+             "VertexArray":vertexArray}
+
+    repMsg = generic_msg(cmd=cmd,args=args)
+    return create_pdarray(repMsg)
+
+@typechecked
+def graph_ktruss(graph: Graph,kTrussValue:int) -> pdarray:
+    """
+    This function returns the number of triangles in a static graph for each edge that satisfies the
+    k requirement.
+    
+    Returns
+    -------
+    pdarray
+        The total number of triangles incident to each edge.
+    
+    See Also
+    --------
+    
+    Notes
+    -----
+    
+    Raises
+    ------  
+    RuntimeError
+    """
+    cmd="segmentedTruss"
+    args = { "KValue":kTrussValue,
+             "NumOfVertices":graph.n_vertices,
+             "NumOfEdges":graph.n_edges,
+             "Directed":graph.directed,
+             "Weighted": graph.weighted,
+            "GraphName":graph.name}
+
+    repMsg = generic_msg(cmd=cmd,args=args)
     return create_pdarray(repMsg)

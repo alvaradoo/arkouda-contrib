@@ -14,7 +14,8 @@ __all__ = ["Graph",
            "bfs_layers",
            "triangles",
            "triangle_centrality",
-           "connected_components"
+           "connected_components",
+           "k_truss"
            ]
 
 class Graph:
@@ -148,7 +149,7 @@ class Graph:
         Returns
         -------
         (src, dst): tuple.
-            The arrays containing the edge information of a graph.
+            The array containing the vertex information of a graph.
         """
         return ak.array([i for i in range(self.n_vertices)])
 
@@ -165,7 +166,21 @@ class Graph:
         repMsg = generic_msg(cmd=cmd, args=args)
         returned_vals = (cast(str, repMsg).split('+'))
 
-        return (create_pdarray(returned_vals[0]), create_pdarray(returned_vals[1]))
+        return create_pdarray(returned_vals[0]), create_pdarray(returned_vals[1])
+
+    def degree(self) -> pdarray:
+        """Returns the degree view for the whole graph as a pdarray object. 
+
+        Returns
+        -------
+        degrees: pdarray.
+            The array containing the number of degrees for each node.
+        """
+        cmd = "degree"
+        args = {"GraphName":self.name}
+        repMsg = generic_msg(cmd=cmd, args=args)
+        
+        return create_pdarray(repMsg)
 
     def add_edges_from(self, akarray_src: pdarray, akarray_dst: pdarray, 
                        akarray_weight: Union[None, pdarray] = None) -> None:
@@ -536,7 +551,7 @@ def triangles(graph: Graph, vertexArray: pdarray) -> pdarray:
     return create_pdarray(repMsg)
 
 @typechecked
-def graph_ktruss(graph: Graph,kTrussValue:int) -> pdarray:
+def k_truss(graph: Graph,kTrussValue:int) -> pdarray:
     """
     This function returns the number of triangles in a static graph for each edge that satisfies the
     k requirement.

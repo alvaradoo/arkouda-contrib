@@ -1225,9 +1225,51 @@ module GraphMsg {
         return new MsgTuple(repMsg, MsgType.NORMAL);
     } // end of addEdgesFromMsg
 
+    /**
+    * Return the degree for each vertex in a graph.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc degreeMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var ag = gEntry.graph;
+
+        // Extract the neighbor arrays.
+        var timer:stopwatch;
+        timer.start();
+        var neighbor = toSymEntry(ag.getNEIGHBOR(), int).a;
+        var neighborR = toSymEntry(ag.getNEIGHBOR_R(), int).a;
+
+        // Generate the degree for each vertex of the graph.
+        var degree = neighbor + neighborR;
+
+        // Add new copies of each to the symbol table.
+        var repMsg = "";
+        var attrName = st.nextName();
+        var attrEntry = new shared SymEntry(degree); 
+        st.addEntry(attrName, attrEntry);
+        repMsg = "created " + st.attrib(attrName);
+
+        timer.stop();
+        outMsg = "Creating degree view takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of degreeMsg
+
     use CommandMap;
     registerFunction("readKnownEdgelist", readKnownEdgelistMsg, getModuleName());
     registerFunction("readEdgelist", readEdgelistMsg, getModuleName());
     registerFunction("addEdgesFrom", addEdgesFromMsg, getModuleName());
     registerFunction("edges", edgesMsg, getModuleName());
+    registerFunction("degree", degreeMsg, getModuleName());
 }

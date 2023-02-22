@@ -4,7 +4,7 @@
 The Arachne project provides an extension to Arkouda that mimics the NetworkX API for graph analysis based off Arkouda `pdarrays`.
 
 ## Installation
-Follow the install instructions specified in the main directory of arkouda-cotnrib. 
+Follow the install instructions specified in the main directory of arkouda-contrib. 
 
 When properly built, navigate to both the Arkouda and Arachne main client repos and execute the following commands:
 ```

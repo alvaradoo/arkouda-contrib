@@ -15,9 +15,9 @@ module GraphArray {
     // Component key names stored in the components map for future retrieval.
     enum Component {
         SRC,            // The source of every edge in the graph, array
-        SRC_R,          // Reverse of SRC
+        SRC_R,          // Reverse of SRC (created from DST)
         DST,            // The destination of every dgee in the graph, array
-        DST_R,          // Reverse of DST
+        DST_R,          // Reverse of DST (created from SRC)
         START_IDX,      // The starting index of every vertex in src and dst
         START_IDX_R,    // Reverse of START_IDX
         NEIGHBOR,       // Number of neighbors for a vertex  

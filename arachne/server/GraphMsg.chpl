@@ -95,36 +95,33 @@ module GraphMsg {
     * lsrc: src array
     * ldst: dst array
     * num_v: number of vertices
+    * node_mapper: mapping of the normalized vertices to the original value
     *
     * returns: new array size
     */
-    private proc vertex_remap(lsrc: [?D1] int, ldst: [?D2] int, num_v: int): int throws {
+    private proc vertex_remap(lsrc: [?D1] int, ldst: [?D2] int, num_v: int, node_mapper: [?D3] int): int throws {
         var num_e = lsrc.size;
         var tmpe: [D1] int;
-        
-        //TODO: remove if not needed.
-        //var vertex_mapping:[0..num_v-1] int;
+        var vertex_mapping:[0..num_v-1] int;
 
         var vertex_set = new set(int, parSafe = true);
-        
         forall (i,j) in zip (lsrc,ldst) with (ref vertex_set) {
             vertex_set.add(i);
             vertex_set.add(j);
         }
-        
         var vertex_ary = vertex_set.toArray();
-        
         if (vertex_ary.size != num_v) {
             smLogger.error(getModuleName(), getRoutineName(), getLineNumber(), 
                            "Number of vertices is not equal to the given number!");
         }
-        
         smLogger.debug(getModuleName(), getRoutineName(), getLineNumber(),
                        "Total Vertices=" + vertex_ary.size:string + " ? Nv=" + num_v:string);
 
         sort(vertex_ary);
+        forall i in 0..vertex_ary.size - 1 {
+            node_mapper[i] = vertex_ary[i];
+        }
 
-        // TODO: possible optimization by using Map {old_val : new_index} (hash table) in Chapel.
         forall i in 0..num_e-1 {
             lsrc[i] = bin_search_v(vertex_ary, 0, vertex_ary.size-1, lsrc[i]);
             ldst[i] = bin_search_v(vertex_ary, 0, vertex_ary.size-1, ldst[i]);
@@ -635,7 +632,8 @@ module GraphMsg {
         readLinebyLine(src, dst, e_weight, path, comments, weighted); 
         
         // Remap the vertices to a new range.
-        var new_nv:int = vertex_remap(src, dst, nv);
+        var node_map: [vertex_domain] int;
+        var new_nv:int = vertex_remap(src, dst, nv, node_map);
       
         if (!weighted) {
             try { 
@@ -807,7 +805,8 @@ module GraphMsg {
             graph.withSRC(new shared SymEntry(mysrc):GenSymEntry)
                 .withDST(new shared SymEntry(mydst):GenSymEntry)
                 .withSTART_IDX(new shared SymEntry(mystart_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(myneighbor):GenSymEntry);
+                .withNEIGHBOR(new shared SymEntry(myneighbor):GenSymEntry)
+                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
 
             if (!directed) {
                 graph.withSRC_R(new shared SymEntry(mysrcR):GenSymEntry)
@@ -833,7 +832,8 @@ module GraphMsg {
             graph.withSRC(new shared SymEntry(src):GenSymEntry)
                 .withDST(new shared SymEntry(dst):GenSymEntry)
                 .withSTART_IDX(new shared SymEntry(start_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry);
+                .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry)
+                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
 
             if (!directed) {
                 graph.withSRC_R(new shared SymEntry(srcR):GenSymEntry)
@@ -950,7 +950,8 @@ module GraphMsg {
         }
 
         // Remap the vertices to a new range.
-        var new_nv:int = vertex_remap(src, dst, nv);
+        var node_map: [vertex_domain] int;
+        var new_nv:int = vertex_remap(src, dst, nv, node_map);
       
         if (!weighted) {
             try { 
@@ -1121,7 +1122,8 @@ module GraphMsg {
             graph.withSRC(new shared SymEntry(mysrc):GenSymEntry)
                 .withDST(new shared SymEntry(mydst):GenSymEntry)
                 .withSTART_IDX(new shared SymEntry(mystart_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(myneighbor):GenSymEntry);
+                .withNEIGHBOR(new shared SymEntry(myneighbor):GenSymEntry)
+                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
 
             if (!directed) {
                 graph.withSRC_R(new shared SymEntry(mysrcR):GenSymEntry)
@@ -1147,7 +1149,8 @@ module GraphMsg {
             graph.withSRC(new shared SymEntry(src):GenSymEntry)
                 .withDST(new shared SymEntry(dst):GenSymEntry)
                 .withSTART_IDX(new shared SymEntry(start_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry);
+                .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry)
+                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
 
             if (!directed) {
                 graph.withSRC_R(new shared SymEntry(srcR):GenSymEntry)

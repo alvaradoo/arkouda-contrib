@@ -162,7 +162,7 @@ class Graph:
             The arrays containing the edge information of a graph.
         """
         cmd = "edges"
-        args = {"GraphName":self.name}
+        args = {"GraphName" : self.name}
         repMsg = generic_msg(cmd=cmd, args=args)
         returned_vals = (cast(str, repMsg).split('+'))
 
@@ -177,7 +177,7 @@ class Graph:
             The array containing the number of degrees for each node.
         """
         cmd = "degree"
-        args = {"GraphName":self.name}
+        args = {"GraphName" : self.name}
         repMsg = generic_msg(cmd=cmd, args=args)
         
         return create_pdarray(repMsg)
@@ -211,6 +211,31 @@ class Graph:
         self.weighted = int(cast(int, returned_vals[3]))
         oriname = cast(str, returned_vals[4])
         self.name = oriname.strip()
+
+    def add_node_properties_from(self, properties:ak.DataFrame) -> None:
+        """Populates the graph object with node properties. 
+
+        Returns
+        -------
+        None
+        """
+        self.properties = properties
+        # cmd = "addNodePropertiesFrom"
+
+        # print(properties)
+
+        # # Attach name of column with arkouda array identifier.
+        # column_names_dict = {}
+        # for key in properties:
+        #     column_names_dict[key] = properties[key]
+        
+        # args = { "GraphName" : self.name,
+        #          "Properties" : column_names_dict }
+        
+        # repMsg = generic_msg(cmd=cmd, args=args)
+        # returned_vals = (cast(str, repMsg).split('+'))
+        # print(returned_vals)
+    
 
 class DiGraph(Graph):
     """Base class for directed graphs. Inherits from Graph.

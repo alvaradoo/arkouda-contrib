@@ -18,7 +18,6 @@ module GraphArray {
         SRC_R,          // Reverse of SRC (created from DST)
         DST,            // The destination of every edge in the graph, array
         DST_R,          // Reverse of DST (created from SRC)
-        TYPE,           // The type of every edge be it directed or undirected.
         START_IDX,      // The starting index of every vertex in src and dst
         START_IDX_R,    // Reverse of START_IDX
         NEIGHBOR,       // Number of neighbors for a vertex  
@@ -74,8 +73,6 @@ module GraphArray {
         proc withNEIGHBOR_R(a:shared GenSymEntry):SegGraph { components.add(Component.NEIGHBOR_R, a); return this; }
         proc withEDGE_WEIGHT(a:shared GenSymEntry):SegGraph { components.add(Component.EDGE_WEIGHT, a); return this; }
         proc withEDGE_WEIGHT_R(a:shared GenSymEntry):SegGraph { components.add(Component.EDGE_WEIGHT_R, a); return this; }
-        proc withRELATIONSHIP(a:shared GenSymEntry):SegGraph { components.add(Component.RELATIONSHIP, a); return this; }
-        proc withRELATIONSHIP_R(a:shared GenSymEntry):SegGraph { components.add(Component.RELATIONSHIP_R, a); return this; }
         proc withNODE_MAP(a:shared GenSymEntry):SegGraph { components.add(Component.NODE_MAP, a); return this; }
 
         proc hasSRC():bool { return components.contains(Component.SRC); }
@@ -88,8 +85,6 @@ module GraphArray {
         proc hasNEIGHBOR_R():bool { return components.contains(Component.NEIGHBOR_R); }
         proc hasEDGE_WEIGHT():bool { return components.contains(Component.EDGE_WEIGHT); }
         proc hasEDGE_WEIGHT_R():bool { return components.contains(Component.EDGE_WEIGHT_R); }
-        proc hasRELATIONSHIP():bool { return components.contains(Component.RELATIONSHIP); }
-        proc hasRELATIONSHIP_R():bool { return components.contains(Component.RELATIONSHIP_R); }
         proc hasNODE_MAP():bool { return components.contains(Component.NODE_MAP); }
 
         proc getSRC() { return components.getBorrowed(Component.SRC); }
@@ -102,23 +97,7 @@ module GraphArray {
         proc getNEIGHBOR_R() { return components.getBorrowed(Component.NEIGHBOR_R); }
         proc getEDGE_WEIGHT() { return components.getBorrowed(Component.EDGE_WEIGHT); }
         proc getEDGE_WEIGHT_R() { return components.getBorrowed(Component.EDGE_WEIGHT_R); }
-        proc getRELATIONSHIP() { return components.getBorrowed(Component.RELATIONSHIP); }
-        proc getRELATIONSHIP_R() { return components.getBorrowed(Component.RELATIONSHIP_R); }
-        proc getNODE_MAP() { return components.getBorrowed(Component.NODE_MAP); }
-
-        // PROPERTY GRAPH PROCEDURES BELOW.
-        proc withNODE_PROPERTY(a:shared GenSymEntry):SegGraph { components.add(Component.NODE_PROPERTY, a); return this; }
-        proc withEDGE_PROPERTY(a:shared GenSymEntry):SegGraph { components.add(Component.EDGE_PROPERTY, a); return this; }
-        proc withLABELS(a:shared GenSymEntry):SegGraph { components.add(Component.LABELS, a); return this; }
-
-        proc hasNODE_PROPERTY():bool { return components.contains(Component.NODE_PROPERTY); }
-        proc hasEDGE_PROPERTY():bool { return components.contains(Component.EDGE_PROPERTY); }
-        proc hasLABELS():bool { return components.contains(Component.LABELS); }
-
-        proc getNODE_PROPERTY() { return components.getBorrowed(Component.NODE_PROPERTY); }
-        proc getEDGE_PROPERTY() { return components.getBorrowed(Component.EDGE_PROPERTY); }
-        proc getLABELS() { return components.getBorrowed(Component.LABELS); }
-        
+        proc getNODE_MAP() { return components.getBorrowed(Component.NODE_MAP); }        
     }
 
     /**

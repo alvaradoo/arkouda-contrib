@@ -1226,7 +1226,44 @@ module GraphMsg {
         smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
 
         return new MsgTuple(repMsg, MsgType.NORMAL);
-    } // end of addEdgesFromMsg
+    } // end of edgesMsg
+
+    /**
+    * Return the nodes of a graph.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc nodesMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var ag = gEntry.graph;
+
+        // Extract the edge arrays.
+        var timer:stopwatch;
+        timer.start();
+        var nodes = toSymEntry(ag.getNODE_MAP(), int).a;
+
+        // Add new copies of each to the symbol table.
+        var repMsg = "";
+        var attrName = st.nextName();
+        var attrEntry = new shared SymEntry(nodes); 
+        st.addEntry(attrName, attrEntry);
+        repMsg += "created " + st.attrib(attrName) + "+ ";
+
+        timer.stop();
+        outMsg = "Extracting nodes takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of nodesMsg
 
     /**
     * Return the degree for each vertex in a graph.
@@ -1274,5 +1311,6 @@ module GraphMsg {
     registerFunction("readEdgelist", readEdgelistMsg, getModuleName());
     registerFunction("addEdgesFrom", addEdgesFromMsg, getModuleName());
     registerFunction("edges", edgesMsg, getModuleName());
+    registerFunction("nodes", nodesMsg, getModuleName());
     registerFunction("degree", degreeMsg, getModuleName());
 }

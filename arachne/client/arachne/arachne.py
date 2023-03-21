@@ -142,16 +142,19 @@ class Graph:
         return self.n_edges
 
     def nodes(self) -> pdarray:
-        """Returns the nodes of the graph. Currently defaults to returning how the vertices are 
-        stored in the server, not the original label names. This will be changed when we implement
-        a mapping of original label names to server label names. 
+        """Returns the nodes of the graph as a pdarray.
 
         Returns
         -------
-        (src, dst): tuple.
+        nodes: pdarray.
             The array containing the vertex information of a graph.
         """
-        return ak.array([i for i in range(self.n_vertices)])
+        cmd = "nodes"
+        args = {"GraphName" : self.name}
+        repMsg = generic_msg(cmd=cmd, args=args)
+        returned_vals = (cast(str, repMsg).split('+'))
+        
+        return create_pdarray(returned_vals[0])
 
     def edges(self) -> Tuple[pdarray, pdarray]:
         """Returns a tuple of pdarrays src and dst.

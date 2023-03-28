@@ -22,6 +22,7 @@ module TriCtrMsg {
     use Sort;
     use Map;
     use DistributedDeque;
+    use Utils;
 
     use List; 
     use Atomics;
@@ -339,14 +340,15 @@ module TriCtrMsg {
 
       if (!Directed) {
               repMsg=triCtr_kernelMST(
-                      toSymEntry(ag.getNEIGHBOR(), int).a,
-                      toSymEntry(ag.getSTART_IDX(), int).a,
-                      toSymEntry(ag.getSRC(), int).a,
-                      toSymEntry(ag.getDST(), int).a,
-                      toSymEntry(ag.getNEIGHBOR_R(), int).a,
-                      toSymEntry(ag.getSTART_IDX_R(), int).a,
-                      toSymEntry(ag.getSRC_R(), int).a,
-                      toSymEntry(ag.getDST_R(), int).a);                                                                               
+                toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX), int).a,
+                toSymEntry(ag.getComp(Component.SRC), int).a,
+                toSymEntry(ag.getComp(Component.DST), int).a,
+                toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX_R), int).a,
+                toSymEntry(ag.getComp(Component.SRC_R), int).a,
+                toSymEntry(ag.getComp(Component.DST_R), int).a
+            );                                                                            
       } else {
             smLogger.error(getModuleName(), getRoutineName(), getLineNumber(), 
                            "Triangle centrality is only specified for undirected graphs currently.");

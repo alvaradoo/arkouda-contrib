@@ -483,23 +483,23 @@ module GraphMsg {
 
         // Add graph data structure to the symbol table. 
         var graph = new shared SegGraph(ne, nv, directed, weighted);
-        graph.withSRC(new shared SymEntry(src):GenSymEntry)
-             .withDST(new shared SymEntry(dst):GenSymEntry)
-             .withSTART_IDX(new shared SymEntry(start_i):GenSymEntry)
-             .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry);
+        graph.withComp(new shared SymEntry(src):GenSymEntry, Component.SRC)
+             .withComp(new shared SymEntry(dst):GenSymEntry, Component.DST)
+             .withComp(new shared SymEntry(start_i):GenSymEntry, Component.START_IDX)
+             .withComp(new shared SymEntry(neighbor):GenSymEntry, Component.NEIGHBOR);
 
         if (!directed) {
-            graph.withSRC_R(new shared SymEntry(srcR):GenSymEntry)
-                 .withDST_R(new shared SymEntry(dstR):GenSymEntry)
-                 .withSTART_IDX_R(new shared SymEntry(start_iR):GenSymEntry)
-                 .withNEIGHBOR_R(new shared SymEntry(neighborR):GenSymEntry);
+            graph.withComp(new shared SymEntry(srcR):GenSymEntry, Component.SRC_R)
+                 .withComp(new shared SymEntry(dstR):GenSymEntry, Component.DST_R)
+                 .withComp(new shared SymEntry(start_iR):GenSymEntry, Component.START_IDX_R)
+                 .withComp(new shared SymEntry(neighborR):GenSymEntry, Component.NEIGHBOR_R);
         }
 
         if (weighted) {
-            graph.withEDGE_WEIGHT(new shared SymEntry(e_weight):GenSymEntry);
+            graph.withComp(new shared SymEntry(e_weight):GenSymEntry, Component.EDGE_WEIGHT);
 
             if (!directed) {
-                graph.withEDGE_WEIGHT_R(new shared SymEntry(e_weightR):GenSymEntry);
+                graph.withComp(new shared SymEntry(e_weightR):GenSymEntry, Component.EDGE_WEIGHT_R);
             }
         }
 
@@ -802,24 +802,23 @@ module GraphMsg {
                                     mye_weight, mye_weightR, directed, weighted);
             }
 
-            graph.withSRC(new shared SymEntry(mysrc):GenSymEntry)
-                .withDST(new shared SymEntry(mydst):GenSymEntry)
-                .withSTART_IDX(new shared SymEntry(mystart_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(myneighbor):GenSymEntry)
-                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
+            graph.withComp(new shared SymEntry(mysrc):GenSymEntry, Component.SRC)
+                .withComp(new shared SymEntry(mydst):GenSymEntry, Component.DST)
+                .withComp(new shared SymEntry(mystart_i):GenSymEntry, Component.START_IDX)
+                .withComp(new shared SymEntry(myneighbor):GenSymEntry, Component.NEIGHBOR);
 
             if (!directed) {
-                graph.withSRC_R(new shared SymEntry(mysrcR):GenSymEntry)
-                    .withDST_R(new shared SymEntry(mydstR):GenSymEntry)
-                    .withSTART_IDX_R(new shared SymEntry(mystart_iR):GenSymEntry)
-                    .withNEIGHBOR_R(new shared SymEntry(myneighborR):GenSymEntry);
+                graph.withComp(new shared SymEntry(mysrcR):GenSymEntry, Component.SRC_R)
+                    .withComp(new shared SymEntry(mydstR):GenSymEntry, Component.DST_R)
+                    .withComp(new shared SymEntry(mystart_iR):GenSymEntry, Component.START_IDX_R)
+                    .withComp(new shared SymEntry(myneighborR):GenSymEntry, Component.NEIGHBOR_R);
             }
 
             if (weighted) {
-                graph.withEDGE_WEIGHT(new shared SymEntry(mye_weight):GenSymEntry);
+                graph.withComp(new shared SymEntry(mye_weight):GenSymEntry, Component.EDGE_WEIGHT);
 
                 if (!directed) {
-                    graph.withEDGE_WEIGHT_R(new shared SymEntry(mye_weightR):GenSymEntry);
+                    graph.withComp(new shared SymEntry(mye_weightR):GenSymEntry, Component.EDGE_WEIGHT_R);
                 }
             }
         } else { // No edge removals.
@@ -829,24 +828,23 @@ module GraphMsg {
                                     e_weight, e_weightR, directed, weighted);
             }
 
-            graph.withSRC(new shared SymEntry(src):GenSymEntry)
-                .withDST(new shared SymEntry(dst):GenSymEntry)
-                .withSTART_IDX(new shared SymEntry(start_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry)
-                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
+            graph.withComp(new shared SymEntry(src):GenSymEntry, Component.SRC)
+                .withComp(new shared SymEntry(dst):GenSymEntry, Component.DST)
+                .withComp(new shared SymEntry(start_i):GenSymEntry, Component.START_IDX)
+                .withComp(new shared SymEntry(neighbor):GenSymEntry, Component.NEIGHBOR);
 
             if (!directed) {
-                graph.withSRC_R(new shared SymEntry(srcR):GenSymEntry)
-                    .withDST_R(new shared SymEntry(dstR):GenSymEntry)
-                    .withSTART_IDX_R(new shared SymEntry(start_iR):GenSymEntry)
-                    .withNEIGHBOR_R(new shared SymEntry(neighborR):GenSymEntry);
+                graph.withComp(new shared SymEntry(srcR):GenSymEntry, Component.SRC_R)
+                    .withComp(new shared SymEntry(dstR):GenSymEntry, Component.DST_R)
+                    .withComp(new shared SymEntry(start_iR):GenSymEntry, Component.START_IDX_R)
+                    .withComp(new shared SymEntry(neighborR):GenSymEntry, Component.NEIGHBOR_R);
             }
 
             if (weighted) {
-                graph.withEDGE_WEIGHT(new shared SymEntry(e_weight):GenSymEntry);
+                graph.withComp(new shared SymEntry(e_weight):GenSymEntry, Component.EDGE_WEIGHT);
 
                 if (!directed) {
-                    graph.withEDGE_WEIGHT_R(new shared SymEntry(e_weightR):GenSymEntry);
+                    graph.withComp(new shared SymEntry(e_weightR):GenSymEntry, Component.EDGE_WEIGHT_R);
                 }
             }
         }
@@ -856,6 +854,7 @@ module GraphMsg {
         var graphSymEntry = new shared GraphSymEntry(graph);
         st.addEntry(graphEntryName, graphSymEntry);
         var repMsg = new_nv:string + '+ ' + new_ne:string + '+ ' + directedS + '+ ' + weighted:int:string + '+' + graphEntryName;
+
         
         // Print out the length of time it takes to read in and build a known graph file.
         timer.stop();
@@ -1119,24 +1118,23 @@ module GraphMsg {
                                     mye_weight, mye_weightR, directed, weighted);
             }
 
-            graph.withSRC(new shared SymEntry(mysrc):GenSymEntry)
-                .withDST(new shared SymEntry(mydst):GenSymEntry)
-                .withSTART_IDX(new shared SymEntry(mystart_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(myneighbor):GenSymEntry)
-                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
+            graph.withComp(new shared SymEntry(mysrc):GenSymEntry, Component.SRC)
+                .withComp(new shared SymEntry(mydst):GenSymEntry, Component.DST)
+                .withComp(new shared SymEntry(mystart_i):GenSymEntry, Component.START_IDX)
+                .withComp(new shared SymEntry(myneighbor):GenSymEntry, Component.NEIGHBOR);
 
             if (!directed) {
-                graph.withSRC_R(new shared SymEntry(mysrcR):GenSymEntry)
-                    .withDST_R(new shared SymEntry(mydstR):GenSymEntry)
-                    .withSTART_IDX_R(new shared SymEntry(mystart_iR):GenSymEntry)
-                    .withNEIGHBOR_R(new shared SymEntry(myneighborR):GenSymEntry);
+                graph.withComp(new shared SymEntry(mysrcR):GenSymEntry, Component.SRC_R)
+                    .withComp(new shared SymEntry(mydstR):GenSymEntry, Component.DST_R)
+                    .withComp(new shared SymEntry(mystart_iR):GenSymEntry, Component.START_IDX_R)
+                    .withComp(new shared SymEntry(myneighborR):GenSymEntry, Component.NEIGHBOR_R);
             }
 
             if (weighted) {
-                graph.withEDGE_WEIGHT(new shared SymEntry(mye_weight):GenSymEntry);
+                graph.withComp(new shared SymEntry(mye_weight):GenSymEntry, Component.EDGE_WEIGHT);
 
                 if (!directed) {
-                    graph.withEDGE_WEIGHT_R(new shared SymEntry(mye_weightR):GenSymEntry);
+                    graph.withComp(new shared SymEntry(mye_weightR):GenSymEntry, Component.EDGE_WEIGHT_R);
                 }
             }
         } else { // No edge removals.
@@ -1146,24 +1144,23 @@ module GraphMsg {
                                     e_weight, e_weightR, directed, weighted);
             }
 
-            graph.withSRC(new shared SymEntry(src):GenSymEntry)
-                .withDST(new shared SymEntry(dst):GenSymEntry)
-                .withSTART_IDX(new shared SymEntry(start_i):GenSymEntry)
-                .withNEIGHBOR(new shared SymEntry(neighbor):GenSymEntry)
-                .withNODE_MAP(new shared SymEntry(node_map):GenSymEntry);
+            graph.withComp(new shared SymEntry(src):GenSymEntry, Component.SRC)
+                .withComp(new shared SymEntry(dst):GenSymEntry, Component.DST)
+                .withComp(new shared SymEntry(start_i):GenSymEntry, Component.START_IDX)
+                .withComp(new shared SymEntry(neighbor):GenSymEntry, Component.NEIGHBOR);
 
             if (!directed) {
-                graph.withSRC_R(new shared SymEntry(srcR):GenSymEntry)
-                    .withDST_R(new shared SymEntry(dstR):GenSymEntry)
-                    .withSTART_IDX_R(new shared SymEntry(start_iR):GenSymEntry)
-                    .withNEIGHBOR_R(new shared SymEntry(neighborR):GenSymEntry);
+                graph.withComp(new shared SymEntry(srcR):GenSymEntry, Component.SRC_R)
+                    .withComp(new shared SymEntry(dstR):GenSymEntry, Component.DST_R)
+                    .withComp(new shared SymEntry(start_iR):GenSymEntry, Component.START_IDX_R)
+                    .withComp(new shared SymEntry(neighborR):GenSymEntry, Component.NEIGHBOR_R);
             }
 
             if (weighted) {
-                graph.withEDGE_WEIGHT(new shared SymEntry(e_weight):GenSymEntry);
+                graph.withComp(new shared SymEntry(e_weight):GenSymEntry, Component.EDGE_WEIGHT);
 
                 if (!directed) {
-                    graph.withEDGE_WEIGHT_R(new shared SymEntry(e_weightR):GenSymEntry);
+                    graph.withComp(new shared SymEntry(e_weightR):GenSymEntry, Component.EDGE_WEIGHT_R);
                 }
             }
         }
@@ -1203,8 +1200,8 @@ module GraphMsg {
         // Extract the edge arrays.
         var timer:stopwatch;
         timer.start();
-        var src = toSymEntry(ag.getSRC(), int).a;
-        var dst = toSymEntry(ag.getDST(), int).a;
+        var src = toSymEntry(ag.getComp(Component.SRC), int).a;
+        var dst = toSymEntry(ag.getComp(Component.DST), int).a;
 
         // Add new copies of each to the symbol table.
         var repMsg = "";
@@ -1246,7 +1243,7 @@ module GraphMsg {
         // Extract the edge arrays.
         var timer:stopwatch;
         timer.start();
-        var nodes = toSymEntry(ag.getNODE_MAP(), int).a;
+        var nodes = toSymEntry(ag.getComp(Component.NODE_MAP), int).a;
 
         // Add new copies of each to the symbol table.
         var repMsg = "";
@@ -1283,8 +1280,8 @@ module GraphMsg {
         // Extract the neighbor arrays.
         var timer:stopwatch;
         timer.start();
-        var neighbor = toSymEntry(ag.getNEIGHBOR(), int).a;
-        var neighborR = toSymEntry(ag.getNEIGHBOR_R(), int).a;
+        var neighbor = toSymEntry(ag.getComp(Component.NEIGHBOR), int).a;
+        var neighborR = toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a;
 
         // Generate the degree for each vertex of the graph.
         var degree = neighbor + neighborR;
@@ -1306,6 +1303,76 @@ module GraphMsg {
         return new MsgTuple(repMsg, MsgType.NORMAL);
     } // end of degreeMsg
 
+    /**
+    * Writes the arrays that make up the graph to a file.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc writeGraphArraysMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var path = msgArgs.getValueOf("Path");
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var ag = gEntry.graph;
+
+        var timer:stopwatch;
+        timer.start();
+        // Invoke utils writeGraphArrays() method.
+        writeGraphArrays(ag, path);
+
+        // Add new copies of each to the symbol table.
+        var repMsg = "";
+        repMsg = "written";
+
+        timer.stop();
+        outMsg = "Writing graph arrays to files takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of writeGraphArraysMsg
+
+    /**
+    * Populates a graph from arrays read in from a file.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc addEdgesFromGraphArraysFileMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var path = msgArgs.getValueOf("Path");
+        var graph = new shared SegGraph(0, 0, false, false);
+
+        var timer:stopwatch;
+        timer.start();
+        // Invoke utils writeGraphArrays() method.
+        readGraphArrays(graph, path);
+
+        // Add new copies of each to the symbol table.
+        var graphEntryName = st.nextName();
+        var graphSymEntry = new shared GraphSymEntry(graph);
+        st.addEntry(graphEntryName, graphSymEntry);
+        var repMsg = graph.n_vertices:string + '+ ' + graph.n_edges:string + '+ ' + graph.isDirected():int:string + '+ ' + graph.isWeighted():int:string + '+' + graphEntryName;
+
+        timer.stop();
+        outMsg = "Reading graph arrays from file create graph takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of addEdgesFromGraphArraysFileMsg
+
     use CommandMap;
     registerFunction("readKnownEdgelist", readKnownEdgelistMsg, getModuleName());
     registerFunction("readEdgelist", readEdgelistMsg, getModuleName());
@@ -1313,4 +1380,6 @@ module GraphMsg {
     registerFunction("edges", edgesMsg, getModuleName());
     registerFunction("nodes", nodesMsg, getModuleName());
     registerFunction("degree", degreeMsg, getModuleName());
+    registerFunction("writeGraphArrays", writeGraphArraysMsg, getModuleName());
+    registerFunction("addEdgesFromGraphArraysFile", addEdgesFromGraphArraysFileMsg, getModuleName());
 }

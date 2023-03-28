@@ -1,7 +1,8 @@
 module GraphArray {
     // Chapel modules.
     use Map;
-    use Reflection; 
+    use Reflection;
+    use Utils;
     
     // Arkouda modules.
     use Logging;
@@ -11,21 +12,6 @@ module GraphArray {
     // Server message logger.
     private config const logLevel = LogLevel.DEBUG;
     const graphLogger = new Logger(logLevel);
-
-    // Component key names stored in the components map for future retrieval.
-    enum Component {
-        SRC,            // The source of every edge in the graph, array
-        SRC_R,          // Reverse of SRC (created from DST)
-        DST,            // The destination of every edge in the graph, array
-        DST_R,          // Reverse of DST (created from SRC)
-        START_IDX,      // The starting index of every vertex in src and dst
-        START_IDX_R,    // Reverse of START_IDX
-        NEIGHBOR,       // Number of neighbors for a vertex  
-        NEIGHBOR_R,     // Number of neighbors for a vertex based on the reversed arrays
-        EDGE_WEIGHT,    // Edge weights
-        EDGE_WEIGHT_R,  // Edge weights reversed for undirected graphs.
-        NODE_MAP,       // The label of the original vertex
-    }
 
     /**
     * We use several arrays and integers to represent a graph.
@@ -51,7 +37,7 @@ module GraphArray {
         var weighted: bool;
 
         /**
-        * Init the basic graph object, we'll compose the pieces using the withCOMPONENT methods.
+        * Init the basic graph object, we'll compose the pieces using the withComp method.
         */
         proc init(num_v:int, num_e:int, directed:bool, weighted:bool) {
             this.n_vertices = num_v;
@@ -63,41 +49,9 @@ module GraphArray {
         proc isDirected():bool { return this.directed; }
         proc isWeighted():bool { return this.weighted; }
 
-        proc withSRC(a:shared GenSymEntry):SegGraph { components.add(Component.SRC, a); return this; }
-        proc withSRC_R(a:shared GenSymEntry):SegGraph { components.add(Component.SRC_R, a); return this; }
-        proc withDST(a:shared GenSymEntry):SegGraph { components.add(Component.DST, a); return this; }
-        proc withDST_R(a:shared GenSymEntry):SegGraph { components.add(Component.DST_R, a); return this; }  
-        proc withSTART_IDX(a:shared GenSymEntry):SegGraph { components.add(Component.START_IDX, a); return this; }
-        proc withSTART_IDX_R(a:shared GenSymEntry):SegGraph { components.add(Component.START_IDX_R, a); return this; }
-        proc withNEIGHBOR(a:shared GenSymEntry):SegGraph { components.add(Component.NEIGHBOR, a); return this; }
-        proc withNEIGHBOR_R(a:shared GenSymEntry):SegGraph { components.add(Component.NEIGHBOR_R, a); return this; }
-        proc withEDGE_WEIGHT(a:shared GenSymEntry):SegGraph { components.add(Component.EDGE_WEIGHT, a); return this; }
-        proc withEDGE_WEIGHT_R(a:shared GenSymEntry):SegGraph { components.add(Component.EDGE_WEIGHT_R, a); return this; }
-        proc withNODE_MAP(a:shared GenSymEntry):SegGraph { components.add(Component.NODE_MAP, a); return this; }
-
-        proc hasSRC():bool { return components.contains(Component.SRC); }
-        proc hasSRC_R():bool { return components.contains(Component.SRC_R); }
-        proc hasDST():bool { return components.contains(Component.DST); }
-        proc hasDST_R():bool { return components.contains(Component.DST_R); }
-        proc hasSTART_IDX():bool { return components.contains(Component.START_IDX); }
-        proc hasSTART_IDX_R():bool { return components.contains(Component.START_IDX_R); }
-        proc hasNEIGHBOR():bool { return components.contains(Component.NEIGHBOR); }
-        proc hasNEIGHBOR_R():bool { return components.contains(Component.NEIGHBOR_R); }
-        proc hasEDGE_WEIGHT():bool { return components.contains(Component.EDGE_WEIGHT); }
-        proc hasEDGE_WEIGHT_R():bool { return components.contains(Component.EDGE_WEIGHT_R); }
-        proc hasNODE_MAP():bool { return components.contains(Component.NODE_MAP); }
-
-        proc getSRC() { return components.getBorrowed(Component.SRC); }
-        proc getSRC_R() { return components.getBorrowed(Component.SRC_R); }
-        proc getDST() { return components.getBorrowed(Component.DST); }
-        proc getDST_R() { return components.getBorrowed(Component.DST_R); }
-        proc getSTART_IDX() { return components.getBorrowed(Component.START_IDX); }
-        proc getSTART_IDX_R() { return components.getBorrowed(Component.START_IDX_R); }
-        proc getNEIGHBOR() { return components.getBorrowed(Component.NEIGHBOR); }
-        proc getNEIGHBOR_R() { return components.getBorrowed(Component.NEIGHBOR_R); }
-        proc getEDGE_WEIGHT() { return components.getBorrowed(Component.EDGE_WEIGHT); }
-        proc getEDGE_WEIGHT_R() { return components.getBorrowed(Component.EDGE_WEIGHT_R); }
-        proc getNODE_MAP() { return components.getBorrowed(Component.NODE_MAP); }        
+        proc withComp(a:shared GenSymEntry, atrname:Component):SegGraph { components.add(atrname, a); return this; }
+        proc hasComp(atrname:Component):bool { return components.contains(atrname); }
+        proc getComp(atrname:Component) { return components.getBorrowed(atrname); }  
     }
 
     /**

@@ -272,22 +272,22 @@ module BFSMsg {
 
         if(directed) {
             fo_bag_bfs_kernel_dir(
-                toSymEntry(ag.getNEIGHBOR(), int).a,
-                toSymEntry(ag.getSTART_IDX(), int).a,
-                toSymEntry(ag.getSRC(), int).a,
-                toSymEntry(ag.getDST(), int).a
+                toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX), int).a,
+                toSymEntry(ag.getComp(Component.SRC), int).a,
+                toSymEntry(ag.getComp(Component.DST), int).a
             );
             repMsg=return_depth();
         } else {
             fo_bag_bfs_kernel_und(
-                toSymEntry(ag.getNEIGHBOR(), int).a,
-                toSymEntry(ag.getSTART_IDX(), int).a,
-                toSymEntry(ag.getSRC(), int).a,
-                toSymEntry(ag.getDST(), int).a,
-                toSymEntry(ag.getNEIGHBOR_R(), int).a,
-                toSymEntry(ag.getSTART_IDX_R(), int).a,
-                toSymEntry(ag.getSRC_R(), int).a,
-                toSymEntry(ag.getDST_R(), int).a
+                toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX), int).a,
+                toSymEntry(ag.getComp(Component.SRC), int).a,
+                toSymEntry(ag.getComp(Component.DST), int).a,
+                toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX_R), int).a,
+                toSymEntry(ag.getComp(Component.SRC_R), int).a,
+                toSymEntry(ag.getComp(Component.DST_R), int).a
             );
             repMsg=return_depth();
         }

@@ -32,6 +32,7 @@ module TriCntMsg {
   use IO.FormattedIO; 
   use GraphArray;
   use GraphMsg;
+  use Utils;
 
 
   private config const logLevel = ServerConfig.logLevel;
@@ -1112,35 +1113,37 @@ module TriCntMsg {
 
       if (Directed) {
               tri_kernel(
-                      toSymEntry(ag.getNEIGHBOR(), int).a,
-                      toSymEntry(ag.getSTART_IDX(), int).a,
-                      toSymEntry(ag.getSRC(), int).a,
-                      toSymEntry(ag.getDST(), int).a);
+                toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX), int).a,
+                toSymEntry(ag.getComp(Component.SRC), int).a,
+                toSymEntry(ag.getComp(Component.DST), int).a
+            );
       }
       else {
 
               if (vertexArray[0]==-1) { 
               triCtr_kernelPathMerge(
-                      toSymEntry(ag.getNEIGHBOR(), int).a,
-                      toSymEntry(ag.getSTART_IDX(), int).a,
-                      toSymEntry(ag.getSRC(), int).a,
-                      toSymEntry(ag.getDST(), int).a,
-                      toSymEntry(ag.getNEIGHBOR_R(), int).a,
-                      toSymEntry(ag.getSTART_IDX_R(), int).a,
-                      toSymEntry(ag.getSRC_R(), int).a,
-                      toSymEntry(ag.getDST_R(), int).a);
+                toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX), int).a,
+                toSymEntry(ag.getComp(Component.SRC), int).a,
+                toSymEntry(ag.getComp(Component.DST), int).a,
+                toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a,
+                toSymEntry(ag.getComp(Component.START_IDX_R), int).a,
+                toSymEntry(ag.getComp(Component.SRC_R), int).a,
+                toSymEntry(ag.getComp(Component.DST_R), int).a
+            );
               returnary[0]=return_count();
                } else {
                   for i in 0..returnary.size-1 {
                        triCtr_vertex(
-                      toSymEntry(ag.getNEIGHBOR(), int).a,
-                      toSymEntry(ag.getSTART_IDX(), int).a,
-                      toSymEntry(ag.getSRC(), int).a,
-                      toSymEntry(ag.getDST(), int).a,
-                      toSymEntry(ag.getNEIGHBOR_R(), int).a,
-                      toSymEntry(ag.getSTART_IDX_R(), int).a,
-                      toSymEntry(ag.getSRC_R(), int).a,
-                      toSymEntry(ag.getDST_R(), int).a,
+                        toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
+                        toSymEntry(ag.getComp(Component.START_IDX), int).a,
+                        toSymEntry(ag.getComp(Component.SRC), int).a,
+                        toSymEntry(ag.getComp(Component.DST), int).a,
+                        toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a,
+                        toSymEntry(ag.getComp(Component.START_IDX_R), int).a,
+                        toSymEntry(ag.getComp(Component.SRC_R), int).a,
+                        toSymEntry(ag.getComp(Component.DST_R), int).a,
                       vertexArray[i]);
                        returnary[i]=return_count();
 

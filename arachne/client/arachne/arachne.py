@@ -215,30 +215,37 @@ class Graph:
         oriname = cast(str, returned_vals[4])
         self.name = oriname.strip()
 
-    def add_node_properties_from(self, properties:ak.DataFrame) -> None:
-        """Populates the graph object with node properties. 
+    def write_graph_arrays_to_file(self, path:str) -> None:
+        """Populates the graph object with edges as defined by the akarrays. 
 
         Returns
         -------
         None
         """
-        self.properties = properties
-        # cmd = "addNodePropertiesFrom"
+        cmd = "writeGraphArrays"
+        args = { "GraphName": self.name,
+                    "Path" : path}
+        repMsg = generic_msg(cmd=cmd, args=args)
+        print(f"Graph writen to file: {path}")
 
-        # print(properties)
+    def add_edges_from_graph_arrays_file(self, path:str) -> None:
+        """Populates the graph object with edges as defined by the akarrays. 
 
-        # # Attach name of column with arkouda array identifier.
-        # column_names_dict = {}
-        # for key in properties:
-        #     column_names_dict[key] = properties[key]
+        Returns
+        -------
+        None
+        """
+        cmd = "addEdgesFromGraphArraysFile"
+        args = { "Path" : path}
         
-        # args = { "GraphName" : self.name,
-        #          "Properties" : column_names_dict }
-        
-        # repMsg = generic_msg(cmd=cmd, args=args)
-        # returned_vals = (cast(str, repMsg).split('+'))
-        # print(returned_vals)
-    
+        repMsg = generic_msg(cmd=cmd, args=args)
+        returned_vals = (cast(str, repMsg).split('+'))
+
+        self.n_vertices = int(cast(int, returned_vals[0]))
+        self.n_edges = int(cast(int, returned_vals[1]))
+        self.weighted = int(cast(int, returned_vals[3]))
+        oriname = cast(str, returned_vals[4])
+        self.name = oriname.strip()
 
 class DiGraph(Graph):
     """Base class for directed graphs. Inherits from Graph.

@@ -261,14 +261,14 @@ module CCMsg {
     var f3 = makeDistArray(Nv, int);
     if (Directed == 0) {
         timer.start();
-        f3 = cc_fs_dist( toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
-                toSymEntry(ag.getComp(Component.START_IDX), int).a,
-                toSymEntry(ag.getComp(Component.SRC), int).a,
-                toSymEntry(ag.getComp(Component.DST), int).a,
-                toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a,
-                toSymEntry(ag.getComp(Component.START_IDX_R), int).a,
-                toSymEntry(ag.getComp(Component.SRC_R), int).a,
-                toSymEntry(ag.getComp(Component.DST_R), int).a
+        f3 = cc_fs_dist( toSymEntry(ag.getComp("NEIGHBOR"), int).a,
+                toSymEntry(ag.getComp("START_IDX"), int).a,
+                toSymEntry(ag.getComp("SRC"), int).a,
+                toSymEntry(ag.getComp("DST"), int).a,
+                toSymEntry(ag.getComp("NEIGHBOR_R"), int).a,
+                toSymEntry(ag.getComp("START_IDX_R"), int).a,
+                toSymEntry(ag.getComp("SRC_R"), int).a,
+                toSymEntry(ag.getComp("DST_R"), int).a
             );
         timer.stop(); 
         outMsg = "Time elapsed for fs dist cc: " + timer.elapsed():string;

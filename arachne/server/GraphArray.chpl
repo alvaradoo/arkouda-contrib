@@ -13,6 +13,21 @@ module GraphArray {
     private config const logLevel = LogLevel.DEBUG;
     const graphLogger = new Logger(logLevel);
 
+    // Component key names to be stored stored in the components map for future retrieval
+    enum Component {
+        SRC,            // The source of every edge in the graph, array
+        SRC_R,          // Reverse of SRC (created from DST)
+        DST,            // The destination of every edge in the graph, array
+        DST_R,          // Reverse of DST (created from SRC)
+        START_IDX,      // The starting index of every vertex in src and dst
+        START_IDX_R,    // Reverse of START_IDX
+        NEIGHBOR,       // Number of neighbors for a vertex  
+        NEIGHBOR_R,     // Number of neighbors for a vertex based on the reversed arrays
+        EDGE_WEIGHT,    // Edge weights
+        EDGE_WEIGHT_R,  // Edge weights reversed for undirected graphs
+        NODE_MAP,       // The label of the original vertex
+    }
+
     /**
     * We use several arrays and integers to represent a graph.
     * Instances are ephemeral, not stored in the symbol table. Instead, attributes
@@ -49,9 +64,9 @@ module GraphArray {
         proc isDirected():bool { return this.directed; }
         proc isWeighted():bool { return this.weighted; }
 
-        proc withComp(a:shared GenSymEntry, atrname:Component):SegGraph { components.add(atrname, a); return this; }
-        proc hasComp(atrname:Component):bool { return components.contains(atrname); }
-        proc getComp(atrname:Component) { return components.getBorrowed(atrname); }  
+        proc withComp(a:shared GenSymEntry, atrname:string):SegGraph throws { components.add(atrname:Component, a); return this; }
+        proc hasComp(atrname:string):bool throws { return components.contains(atrname:Component); }
+        proc getComp(atrname:string):GenSymEntry throws { return components[atrname:Component]; }
     }
 
     /**

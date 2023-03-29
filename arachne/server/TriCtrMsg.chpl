@@ -340,14 +340,14 @@ module TriCtrMsg {
 
       if (!Directed) {
               repMsg=triCtr_kernelMST(
-                toSymEntry(ag.getComp(Component.NEIGHBOR), int).a,
-                toSymEntry(ag.getComp(Component.START_IDX), int).a,
-                toSymEntry(ag.getComp(Component.SRC), int).a,
-                toSymEntry(ag.getComp(Component.DST), int).a,
-                toSymEntry(ag.getComp(Component.NEIGHBOR_R), int).a,
-                toSymEntry(ag.getComp(Component.START_IDX_R), int).a,
-                toSymEntry(ag.getComp(Component.SRC_R), int).a,
-                toSymEntry(ag.getComp(Component.DST_R), int).a
+                toSymEntry(ag.getComp("NEIGHBOR"), int).a,
+                toSymEntry(ag.getComp("START_IDX"), int).a,
+                toSymEntry(ag.getComp("SRC"), int).a,
+                toSymEntry(ag.getComp("DST"), int).a,
+                toSymEntry(ag.getComp("NEIGHBOR_R"), int).a,
+                toSymEntry(ag.getComp("START_IDX_R"), int).a,
+                toSymEntry(ag.getComp("SRC_R"), int).a,
+                toSymEntry(ag.getComp("DST_R"), int).a
             );                                                                            
       } else {
             smLogger.error(getModuleName(), getRoutineName(), getLineNumber(), 

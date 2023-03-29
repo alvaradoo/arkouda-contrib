@@ -20,21 +20,6 @@ module Utils {
     const smLogger = new Logger(logLevel);
     private var outMsg:string;
 
-    // Component key names to be stored stored in the components map for future retrieval
-    enum Component {
-        SRC,            // The source of every edge in the graph, array
-        SRC_R,          // Reverse of SRC (created from DST)
-        DST,            // The destination of every edge in the graph, array
-        DST_R,          // Reverse of DST (created from SRC)
-        START_IDX,      // The starting index of every vertex in src and dst
-        START_IDX_R,    // Reverse of START_IDX
-        NEIGHBOR,       // Number of neighbors for a vertex  
-        NEIGHBOR_R,     // Number of neighbors for a vertex based on the reversed arrays
-        EDGE_WEIGHT,    // Edge weights
-        EDGE_WEIGHT_R,  // Edge weights reversed for undirected graphs
-        NODE_MAP,       // The label of the original vertex
-    }
-
     /**
     * Print graph data structure server-side to visualize the raw array data.
     *
@@ -106,7 +91,7 @@ module Utils {
                         comments: string, weighted: bool) throws {
         coforall loc in Locales  {
             on loc {
-                var f = open(path, iomode.r);
+                var f = open(path, ioMode.r);
                 var r = f.reader(kind = ionative);
                 var line:string;
                 var a,b,c:string;
@@ -174,12 +159,12 @@ module Utils {
     */
     proc writeGraphArrays(G: borrowed SegGraph, filename: string) throws {
         // Create and open an output file with the specified filename in write mode.
-        var outfile = open(filename, iomode.cw);
+        var outfile = open(filename, ioMode.cw);
         var writer = outfile.writer();
 
         for comp in Component {
-            if G.hasComp(comp) {
-                var X = toSymEntry(G.getComp(comp), int).a;
+            if G.hasComp(comp:string) {
+                var X = toSymEntry(G.getComp(comp:string), int).a;
                 var n = X.size;
                 writer.writeln(n, " ", comp:string);
                 writer.writeln(X);
@@ -196,7 +181,7 @@ module Utils {
     */
     proc readGraphArrays(G: borrowed SegGraph, filename: string) throws {
         // Open an input file with the specified filename in read mode.
-        var infile = open(filename, iomode.r);
+        var infile = open(filename, ioMode.r);
         var reader = infile.reader(kind = ionative);
 
         var count = 0;
@@ -211,7 +196,7 @@ module Utils {
                 continue;
             } else {
                 var X = line.split():int;
-                G.withComp(new shared SymEntry(X):GenSymEntry, arr_type:Component);
+                G.withComp(new shared SymEntry(X):GenSymEntry, arr_type);
 
                 if (arr_type == "SRC") {
                     G.n_edges = X.size;

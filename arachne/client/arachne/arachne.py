@@ -216,7 +216,7 @@ class Graph:
         self.name = oriname.strip()
 
     def write_graph_arrays_to_file(self, path:str) -> None:
-        """Populates the graph object with edges as defined by the akarrays. 
+        """Writes the graph arrays that make up a graph to a file. 
 
         Returns
         -------
@@ -229,7 +229,7 @@ class Graph:
         print(f"Graph writen to file: {path}")
 
     def add_edges_from_graph_arrays_file(self, path:str) -> None:
-        """Populates the graph object with edges as defined by the akarrays. 
+        """Populates the graph object with arrays as defined from a file. 
 
         Returns
         -------
@@ -246,6 +246,26 @@ class Graph:
         self.weighted = int(cast(int, returned_vals[3]))
         oriname = cast(str, returned_vals[4])
         self.name = oriname.strip()
+
+    def add_node_labels(self, labels:ak.DataFrame) -> None:
+        """Populates the graph object with labels from a dataframe. Passed dataframe should follow
+        this same format for key names: 
+        
+        labels = ak.DataFrame({"nodeIDs" : nodes, "nodeLabels" : labels})
+
+        Returns
+        -------
+        None
+        """
+        cmd = "addNodeLabels"
+        arrays = labels["nodeIDs"].name + " " + labels["nodeLabels"].name
+        print(arrays)
+        args = {  "GraphName" : self.name,
+                  "Arrays" : arrays }
+
+        repMsg = generic_msg(cmd=cmd, args=args)
+        print(repMsg)
+
 
 class DiGraph(Graph):
     """Base class for directed graphs. Inherits from Graph.

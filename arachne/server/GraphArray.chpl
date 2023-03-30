@@ -26,6 +26,9 @@ module GraphArray {
         EDGE_WEIGHT,    // Edge weights
         EDGE_WEIGHT_R,  // Edge weights reversed for undirected graphs
         NODE_MAP,       // The label of the original vertex
+        NODE_LABELS,    // Any labels that belong to a specific node
+        NODE_PROPS,     // Any properties that belong to a specific node
+        EDGE_PROPS,     // Any properties that belong to a specific edge
     }
 
     /**

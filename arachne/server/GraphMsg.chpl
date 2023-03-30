@@ -4,10 +4,12 @@ module GraphMsg {
     use Set;
     use Time; 
     use Sort; 
+    use List;
     
     // Arachne Modules.
     use Utils; 
     use GraphArray;
+    use SegmentedString;
     
     // Arkouda modules.
     use MultiTypeSymbolTable;
@@ -1359,7 +1361,7 @@ module GraphMsg {
         // Invoke utils writeGraphArrays() method.
         readGraphArrays(graph, path);
 
-        // Add new copies of each to the symbol table.
+        // Create new object for new graph.
         var graphEntryName = st.nextName();
         var graphSymEntry = new shared GraphSymEntry(graph);
         st.addEntry(graphEntryName, graphSymEntry);
@@ -1375,6 +1377,62 @@ module GraphMsg {
         return new MsgTuple(repMsg, MsgType.NORMAL);
     } // end of addEdgesFromGraphArraysFileMsg
 
+    /**
+    * Adds node labels to the nodes of a property graph.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc addNodeLabelsMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var arrays = msgArgs.getValueOf("Arrays");
+
+        // Extract the names of the arrays storing the nodeIDs and labels.
+        var arrays_list = arrays.split();
+        var nodes_name = arrays_list[0];
+        var labels_name = arrays_list[1];
+        
+        // Extract the nodes array that is an integer array.
+        var nodes_entry: borrowed GenSymEntry = getGenericTypedArrayEntry(nodes_name, st);
+        var nodes_sym = toSymEntry(nodes_entry,int);
+        var nodes_arr = nodes_sym.a;
+
+        // Extract the labels array which is a string array aka a segmented string.
+        var labels_arr:SegString = getSegString(labels_name, st);
+
+        // Create array of lists. 
+        var node_labels: [nodes_arr.domain] list(string, parSafe=true);
+
+        var timer:stopwatch;
+        timer.start();
+
+        // TODO: some sort here for when the nodes_arr and labels_arr are not sorted?
+
+        for i in nodes_arr.domain {
+            var labels = labels_arr[i].split();
+            for j in labels.domain {
+                node_labels[i].append(labels[j]);
+            }
+        }
+        writeln("node_labels = ", node_labels);
+
+        timer.stop();
+        var repMsg = "labels added";
+        outMsg = "Adding node labels to property graph takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of addNodeLabelsMsg
+
+
+
     use CommandMap;
     registerFunction("readKnownEdgelist", readKnownEdgelistMsg, getModuleName());
     registerFunction("readEdgelist", readEdgelistMsg, getModuleName());
@@ -1384,4 +1442,5 @@ module GraphMsg {
     registerFunction("degree", degreeMsg, getModuleName());
     registerFunction("writeGraphArrays", writeGraphArraysMsg, getModuleName());
     registerFunction("addEdgesFromGraphArraysFile", addEdgesFromGraphArraysFileMsg, getModuleName());
+    registerFunction("addNodeLabels", addNodeLabelsMsg, getModuleName());
 }

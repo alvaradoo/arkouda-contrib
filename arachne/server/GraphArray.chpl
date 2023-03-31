@@ -25,7 +25,9 @@ module GraphArray {
         NEIGHBOR_R,     // Number of neighbors for a vertex based on the reversed arrays
         EDGE_WEIGHT,    // Edge weights
         EDGE_WEIGHT_R,  // Edge weights reversed for undirected graphs
-        NODE_MAP,       // The label of the original vertex
+        NODE_MAP,       // Index of remapped arrow pointing to original node value
+        NODE_MAP_R,     // Original node value as key pointing to index in the stored graph
+        RELATIONSHIPS,  // The relationships that belong to specific edges
         NODE_LABELS,    // Any labels that belong to a specific node
         NODE_PROPS,     // Any properties that belong to a specific node
         EDGE_PROPS,     // Any properties that belong to a specific edge

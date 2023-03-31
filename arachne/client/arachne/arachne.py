@@ -259,12 +259,30 @@ class Graph:
         """
         cmd = "addNodeLabels"
         arrays = labels["nodeIDs"].name + " " + labels["nodeLabels"].name
-        print(arrays)
         args = {  "GraphName" : self.name,
                   "Arrays" : arrays }
-
         repMsg = generic_msg(cmd=cmd, args=args)
-        print(repMsg)
+
+    def add_node_properties(self, properties:ak.DataFrame) -> None:
+        """Populates the graph object with properties from a dataframe. Passed dataframe should 
+        follow this same format for key-value pairs: 
+        
+        properties = ak.DataFrame({"nodeIDs" : nodes, "prop1" : prop1, ... , "propX" : propX})
+
+        where X is an arbitrary number of property columns. 
+
+        Returns
+        -------
+        None
+        """
+        cmd = "addNodeProperties"
+        arrays = properties["nodeIDs"].name + " "
+        for key in properies.columns:
+            if key != "nodeIDs":
+                arrays += properties[key].name
+
+        print(f"arrays from add_node_properties {arrays}")
+
 
 
 class DiGraph(Graph):

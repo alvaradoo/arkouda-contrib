@@ -101,7 +101,7 @@ module GraphMsg {
     *
     * returns: new array size
     */
-    private proc vertex_remap(lsrc: [?D1] int, ldst: [?D2] int, num_v: int, node_mapper: [?D3] int): int throws {
+    private proc vertex_remap(lsrc: [?D1] int, ldst: [?D2] int, num_v: int, node_mapper: [?D3] int, node_mapper_r: [?D4] int): int throws {
         var num_e = lsrc.size;
         var tmpe: [D1] int;
         var vertex_mapping:[D3] int;
@@ -122,6 +122,8 @@ module GraphMsg {
         sort(vertex_ary);
         forall i in 0..vertex_ary.size - 1 {
             node_mapper[i] = vertex_ary[i];
+            D4.add(node_mapper[i]);
+            node_mapper_r[node_mapper[i]] = i;
         }
 
         forall i in 0..num_e-1 {
@@ -635,7 +637,9 @@ module GraphMsg {
         
         // Remap the vertices to a new range.
         var node_map: [vertex_domain] int;
-        var new_nv:int = vertex_remap(src, dst, nv, node_map);
+        var orig_node_domain: domain(int);
+        var node_map_r: [orig_node_domain] int;
+        var new_nv:int = vertex_remap(src, dst, nv, node_map, node_map_r);
       
         if (!weighted) {
             try { 
@@ -953,7 +957,9 @@ module GraphMsg {
 
         // Remap the vertices to a new range.
         var node_map: [vertex_domain] int;
-        var new_nv:int = vertex_remap(src, dst, nv, node_map);
+        var orig_node_domain: domain(int);
+        var node_map_r: [orig_node_domain] int;
+        var new_nv:int = vertex_remap(src, dst, nv, node_map, node_map_r);
       
         if (!weighted) {
             try { 
@@ -1409,18 +1415,22 @@ module GraphMsg {
 
         var timer:stopwatch;
         timer.start();
-
         // TODO: some sort here for when the nodes_arr and labels_arr are not sorted?
 
+        // Add label to the array of linked lists for each node. 
         for i in nodes_arr.domain {
             var labels = labels_arr[i].split();
             for j in labels.domain {
                 node_labels[i].append(labels[j]);
             }
         }
-        writeln("node_labels = ", node_labels);
-
+        
+        // Add the component for the node labels for the graph. 
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var graph = gEntry.graph;
+        graph.withComp(new shared SymEntry(node_labels):GenSymEntry, "NODE_LABELS");
         timer.stop();
+        
         var repMsg = "labels added";
         outMsg = "Adding node labels to property graph takes " + timer.elapsed():string;
         

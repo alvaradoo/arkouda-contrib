@@ -101,10 +101,9 @@ module GraphMsg {
     *
     * returns: new array size
     */
-    private proc vertex_remap(lsrc: [?D1] int, ldst: [?D2] int, num_v: int, node_mapper: [?D3] int, node_mapper_r: [?D4] int): int throws {
+    private proc vertex_remap(lsrc: [?D1] int, ldst: [?D2] int, num_v: int, node_mapper: [?D3] int, node_mapper_r: [?D4], ref rev_node_domain: domain): int throws {
         var num_e = lsrc.size;
         var tmpe: [D1] int;
-        var vertex_mapping:[D3] int;
 
         var vertex_set = new set(int, parSafe = true);
         forall (i,j) in zip (lsrc,ldst) with (ref vertex_set) {
@@ -120,9 +119,12 @@ module GraphMsg {
                        "Total Vertices=" + vertex_ary.size:string + " ? Nv=" + num_v:string);
 
         sort(vertex_ary);
-        forall i in 0..vertex_ary.size - 1 {
+        forall i in D3 with (ref rev_node_domain) {
             node_mapper[i] = vertex_ary[i];
-            D4.add(node_mapper[i]);
+            rev_node_domain.add(node_mapper[i]);
+        }
+
+        forall i in D3 {
             node_mapper_r[node_mapper[i]] = i;
         }
 
@@ -637,9 +639,9 @@ module GraphMsg {
         
         // Remap the vertices to a new range.
         var node_map: [vertex_domain] int;
-        var orig_node_domain: domain(int);
-        var node_map_r: [orig_node_domain] int;
-        var new_nv:int = vertex_remap(src, dst, nv, node_map, node_map_r);
+        var rev_node_domain: domain(int);
+        var node_map_r: [rev_node_domain] int;
+        var new_nv:int = vertex_remap(src, dst, nv, node_map, node_map_r, rev_node_domain);
       
         if (!weighted) {
             try { 
@@ -957,9 +959,9 @@ module GraphMsg {
 
         // Remap the vertices to a new range.
         var node_map: [vertex_domain] int;
-        var orig_node_domain: domain(int);
-        var node_map_r: [orig_node_domain] int;
-        var new_nv:int = vertex_remap(src, dst, nv, node_map, node_map_r);
+        var rev_node_domain: domain(int);
+        var node_map_r: [rev_node_domain] int;
+        var new_nv:int = vertex_remap(src, dst, nv, node_map, node_map_r, rev_node_domain);
       
         if (!weighted) {
             try { 

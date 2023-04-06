@@ -78,7 +78,7 @@ module GraphArray {
     * GraphSymEntry is the wrapper class around SegGraph so it may be stored in 
     * the Symbol Table (SymTab).
     */
-    class GraphSymEntry:CompositeSymEntry {
+    class GraphSymEntry : CompositeSymEntry {
         var graph: shared SegGraph;
 
         proc init(segGraph: shared SegGraph) {
@@ -89,6 +89,17 @@ module GraphArray {
         }
         override proc getSizeEstimate(): int {
             return 1;
+        }
+    }
+
+    class SymEntryAD : GenSymEntry {
+        var associative_domain: domain(int);
+        var associative_array: [associative_domain] int;
+
+        proc init(associative_array: [?D] int) {
+            super.init(int);
+            this.associative_domain = D;
+            this.associative_array = associative_array;
         }
     }
 

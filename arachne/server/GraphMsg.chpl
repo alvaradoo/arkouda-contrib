@@ -1133,7 +1133,8 @@ module GraphMsg {
                 .withComp(new shared SymEntry(mydst):GenSymEntry, "DST")
                 .withComp(new shared SymEntry(mystart_i):GenSymEntry, "START_IDX")
                 .withComp(new shared SymEntry(myneighbor):GenSymEntry, "NEIGHBOR")
-                .withComp(new shared SymEntry(node_map):GenSymEntry, "NODE_MAP");
+                .withComp(new shared SymEntry(node_map):GenSymEntry, "NODE_MAP")
+                .withComp(new shared SymEntryAD(node_map_r):GenSymEntry, "NODE_MAP_R");
 
             if (!directed) {
                 graph.withComp(new shared SymEntry(mysrcR):GenSymEntry, "SRC_R")
@@ -1260,7 +1261,7 @@ module GraphMsg {
         // Add new copies of each to the symbol table.
         var repMsg = "";
         var attrName = st.nextName();
-        var attrEntry = new shared SymEntry(nodes); 
+        var attrEntry = new shared SymEntry(nodes);
         st.addEntry(attrName, attrEntry);
         repMsg += "created " + st.attrib(attrName) + "+ ";
 

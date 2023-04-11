@@ -1023,9 +1023,9 @@ module GraphMsg {
         
         for i in 0..ne - 1 {
             // Ignore self-loops. 
-            if src[i]==dst[i] {
-                continue;
-            }
+            // if src[i]==dst[i] {
+            //     continue;
+            // }
             if (cur == 0) {
                 tmpsrc[cur] = src[i];
                 tmpdst[cur] = dst[i]; 
@@ -1498,14 +1498,12 @@ module GraphMsg {
         // Create array of lists to store relationships and populate it. 
         var relationships: [src_actual.domain] list(string, parSafe=true);
 
-        var start:int;
-        var end:int;
-        for (i,j) in zip(src.domain, dst.domain) {
+        forall (i,j) in zip(src.domain, dst.domain) with (ref relationships, ref rel_arr){
             var u = node_map_r[src[i]];
             var v = node_map_r[dst[j]];
 
-            start = start_idx[u];
-            end = start + neighbor[u];
+            var start = start_idx[u];
+            var end = start + neighbor[u];
 
             var neighborhood = dst_actual[start..end-1];
             var ind = bin_search_v(neighborhood, neighborhood.domain.lowBound, neighborhood.domain.highBound, v);
@@ -1524,9 +1522,145 @@ module GraphMsg {
         smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
         smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
         return new MsgTuple(repMsg, MsgType.NORMAL);
-    } // end of addNodeLabelsMsg
+    } // end of addEdgeRelationshipsMsg
 
+    /**
+    * Adds properties to the nodes of a property graph.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc addNodePropertiesMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var arrays = msgArgs.getValueOf("Arrays");
+        var columns = msgArgs.getValueOf("Columns");
 
+        // Extract the names of the arrays storing the nodeIDs and labels.
+        var arrays_list = arrays.split();
+        var nodes_name = arrays_list[0];
+
+        // Extract the column names.
+        var cols_list = columns.split();
+        
+        // Extract the nodes array that is an integer array.
+        var nodes_entry: borrowed GenSymEntry = getGenericTypedArrayEntry(nodes_name, st);
+        var nodes_sym = toSymEntry(nodes_entry, int);
+        var nodes_arr = nodes_sym.a;
+
+        // Get graph for usage.
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var graph = gEntry.graph;
+        
+        var node_map = toSymEntry(graph.getComp("NODE_MAP"), int).a;
+        var node_props: [node_map.domain] list(string, parSafe=true);
+        if graph.hasComp("NODE_PROPS") {
+            node_props = toSymEntry(graph.getComp("NODE_PROPS"), list(string, parSafe=true)).a;
+        }
+
+        var node_map_r = toSymEntryAD(graph.getComp("NODE_MAP_R")).a;
+        var timer:stopwatch;
+        timer.start();
+        forall i in 1..arrays_list.size - 1 {
+            var curr_prop_arr:SegString = getSegString(arrays_list[i], st);
+            for j in nodes_arr.domain {
+                node_props[node_map_r[nodes_arr[j]]].append(cols_list[i] + " : " + curr_prop_arr[j]);
+            }   
+        }
+        
+        writeln("node_props = ", node_props);
+        // Add the component for the node labels for the graph. 
+        graph.withComp(new shared SymEntry(node_props):GenSymEntry, "NODE_PROPS");
+        timer.stop();
+        
+        var repMsg = "node properties added";
+        outMsg = "Adding node properties to property graph takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of addNodePropertiesMsg
+
+    /**
+    * Adds properties to the edges of a property graph.
+    *
+    * cmd: operation to perform. 
+    * msgArgs: arugments passed to backend. 
+    * SymTab: symbol table used for storage. 
+    *
+    * returns: message back to Python.
+    */
+    proc addEdgePropertiesMsg(cmd: string, msgArgs: borrowed MessageArgs, st: borrowed SymTab): MsgTuple throws {
+        // Parse the message from Python to extract needed data. 
+        var graphEntryName = msgArgs.getValueOf("GraphName");
+        var arrays = msgArgs.getValueOf("Arrays");
+        var columns = msgArgs.getValueOf("Columns");
+
+        // Extract the names of the arrays passed to the function.
+        var arrays_list = arrays.split();
+        var src_name = arrays_list[0];
+        var dst_name = arrays_list[1];
+        
+        // Extract the actual arrays for each of the names above.
+        var src_entry: borrowed GenSymEntry = getGenericTypedArrayEntry(src_name, st);
+        var src_sym = toSymEntry(src_entry, int);
+        var src = src_sym.a;
+        
+        var dst_entry: borrowed GenSymEntry = getGenericTypedArrayEntry(dst_name, st);
+        var dst_sym = toSymEntry(dst_entry, int);
+        var dst = dst_sym.a;
+
+        var timer:stopwatch;
+        timer.start();
+        
+        // Get graph for usage and needed arrays.
+        var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
+        var graph = gEntry.graph;
+        var node_map_r = toSymEntryAD(graph.getComp("NODE_MAP_R")).a;
+        var start_idx = toSymEntry(graph.getComp("START_IDX"), int).a;
+        var neighbor = toSymEntry(graph.getComp("NEIGHBOR"), int).a;
+        var src_actual = toSymEntry(graph.getComp("SRC"), int).a;
+        var dst_actual = toSymEntry(graph.getComp("DST"), int).a;
+
+        // Create array of lists to store edge_props and populate it. 
+        var edge_props: [src_actual.domain] list(string, parSafe=true);
+        if(graph.hasComp("EDGE_PROPS")) {
+            edge_props = toSymEntry(graph.getComp("EDGE_PROPS"), list(string, parSafe=true)).a;
+        }
+
+        forall x in 2..arrays_list.size - 1 {
+            var curr_prop_arr:SegString = getSegString(arrays_list[x], st);
+            forall (i,j) in zip(src.domain, dst.domain) with (ref edge_props, ref curr_prop_arr) {
+                var u = node_map_r[src[i]];
+                var v = node_map_r[dst[j]];
+
+                var start = start_idx[u];
+                var end = start + neighbor[u];
+
+                var neighborhood = dst_actual[start..end-1];
+                var ind = bin_search_v(neighborhood, neighborhood.domain.lowBound, neighborhood.domain.highBound, v);
+
+                edge_props[ind].append(curr_prop_arr[i]); // or j
+            }
+        }
+        writeln("edge_props = ", edge_props);
+        
+        // Add the component for the node labels for the graph. 
+        graph.withComp(new shared SymEntry(edge_props):GenSymEntry, "EDGE_PROPS");
+        timer.stop();
+        var repMsg = "edge properties added";
+        outMsg = "Adding edge properties to property graph takes " + timer.elapsed():string;
+        
+        // Print out debug information to arkouda server output. 
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),outMsg);
+        smLogger.debug(getModuleName(),getRoutineName(),getLineNumber(),repMsg);
+        return new MsgTuple(repMsg, MsgType.NORMAL);
+    } // end of addEdgePropertiesMsg
 
     use CommandMap;
     registerFunction("readKnownEdgelist", readKnownEdgelistMsg, getModuleName());
@@ -1539,4 +1673,6 @@ module GraphMsg {
     registerFunction("addEdgesFromGraphArraysFile", addEdgesFromGraphArraysFileMsg, getModuleName());
     registerFunction("addNodeLabels", addNodeLabelsMsg, getModuleName());
     registerFunction("addEdgeRelationships", addEdgeRelationshipsMsg, getModuleName());
+    registerFunction("addNodeProperties", addNodePropertiesMsg, getModuleName());
+    registerFunction("addEdgeProperties", addEdgePropertiesMsg, getModuleName());
 }

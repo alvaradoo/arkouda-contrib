@@ -263,11 +263,11 @@ class Graph:
                   "Arrays" : arrays }
         repMsg = generic_msg(cmd=cmd, args=args)
 
-    def add_edge_relatonships(self, properties:ak.DataFrame) -> None:
-        """Populates the graph object with properties from a dataframe. Passed dataframe should 
+    def add_edge_relationships(self, relations:ak.DataFrame) -> None:
+        """Populates the graph object with edge relationships from a dataframe. Passed dataframe should 
         follow this same format for key-value pairs: 
         
-        properties = ak.DataFrame({"nodeIDs" : nodes, "prop1" : prop1, ... , "propX" : propX})
+        relationships = ak.DataFrame({"src" : src, "dst" : dst, "edgeRelationships" : edgeRelationships})
 
         where X is an arbitrary number of property columns. 
 
@@ -276,12 +276,58 @@ class Graph:
         None
         """
         cmd = "addEdgeRelationships"
-        arrays = properties["src"].name + " " + properties["dst"].name + " " + properties["edgeRelationships"].name + " "
+        arrays = relations["src"].name + " " + relations["dst"].name + " " + relations["edgeRelationships"].name + " "
         args = {  "GraphName" : self.name,
                   "Arrays" : arrays }
-
         repMsg = generic_msg(cmd=cmd, args=args)
 
+    def add_node_properties(self, properties:ak.DataFrame) -> None:
+        """Populates the graph object with node properties from a dataframe. Passed dataframe should follow
+        this same format for key names below:
+        
+        node_properties = ak.DataFrame({"nodeIDs" : nodes, "prop1" : prop1, ... , "propN" L propN})
+
+        Returns
+        -------
+        None
+        """
+        cmd = "addNodeProperties"
+        arrays = properties["nodeIDs"].name + " " 
+        columns = "nodeIDs" + " "
+
+        for column in properties.columns:
+            if column != "nodeIDs":
+                arrays += properties[column].name + " "
+                columns += column + " "
+
+        args = {  "GraphName" : self.name,
+                  "Arrays" : arrays,
+                  "Columns" : columns }
+        repMsg = generic_msg(cmd=cmd, args=args)
+
+    def add_edge_properties(self, properties:ak.DataFrame) -> None:
+        """Populates the graph object with edge properties from a dataframe. Passed dataframe should follow
+        this same format for key names below:
+        
+        edge_properties = ak.DataFrame({"src" : src, "dst" : dst, "prop1" : prop1, ... , "propM" : propM})
+
+        Returns
+        -------
+        None
+        """
+        cmd = "addEdgeProperties"
+        arrays = properties["src"].name + " " + properties["dst"].name + " "
+        columns = "src" + " " + "dst" + " "
+
+        for column in properties.columns:
+            if column != "src" and column != "dst":
+                arrays += properties[column].name + " "
+                columns += column + " "
+
+        args = {  "GraphName" : self.name,
+                  "Arrays" : arrays,
+                  "Columns" : columns }
+        repMsg = generic_msg(cmd=cmd, args=args)
 
 
 class DiGraph(Graph):

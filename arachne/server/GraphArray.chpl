@@ -93,14 +93,18 @@ module GraphArray {
     }
 
     class SymEntryAD : GenSymEntry {
-        var associative_domain: domain(int);
-        var associative_array: [associative_domain] int;
-
-        proc init(associative_array: [?D] int) {
+        var aD: domain(int);
+        var a: [aD] int;
+        
+        proc init(associative_array: [?associative_domain] int) {
             super.init(int);
-            this.associative_domain = D;
-            this.associative_array = associative_array;
+            this.aD = associative_domain;
+            this.a = associative_array;
         }
+    }
+
+    proc toSymEntryAD(e) {
+        return try! e : borrowed SymEntryAD();
     }
 
     /**

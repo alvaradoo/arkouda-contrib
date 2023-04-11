@@ -263,7 +263,7 @@ class Graph:
                   "Arrays" : arrays }
         repMsg = generic_msg(cmd=cmd, args=args)
 
-    def add_node_properties(self, properties:ak.DataFrame) -> None:
+    def add_edge_relatonships(self, properties:ak.DataFrame) -> None:
         """Populates the graph object with properties from a dataframe. Passed dataframe should 
         follow this same format for key-value pairs: 
         
@@ -275,13 +275,12 @@ class Graph:
         -------
         None
         """
-        cmd = "addNodeProperties"
-        arrays = properties["nodeIDs"].name + " "
-        for key in properies.columns:
-            if key != "nodeIDs":
-                arrays += properties[key].name
+        cmd = "addEdgeRelationships"
+        arrays = properties["src"].name + " " + properties["dst"].name + " " + properties["edgeRelationships"].name + " "
+        args = {  "GraphName" : self.name,
+                  "Arrays" : arrays }
 
-        print(f"arrays from add_node_properties {arrays}")
+        repMsg = generic_msg(cmd=cmd, args=args)
 
 
 

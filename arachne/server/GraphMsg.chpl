@@ -1566,7 +1566,7 @@ module GraphMsg {
         timer.start();
         forall i in 1..arrays_list.size - 1 {
             var curr_prop_arr:SegString = getSegString(arrays_list[i], st);
-            for j in nodes_arr.domain {
+            forall j in nodes_arr.domain {
                 node_props[node_map_r[nodes_arr[j]]].append(cols_list[i] + " : " + curr_prop_arr[j]);
             }   
         }
@@ -1603,6 +1603,7 @@ module GraphMsg {
 
         // Extract the names of the arrays passed to the function.
         var arrays_list = arrays.split();
+        var cols_list = columns.split();
         var src_name = arrays_list[0];
         var dst_name = arrays_list[1];
         
@@ -1617,6 +1618,10 @@ module GraphMsg {
 
         var timer:stopwatch;
         timer.start();
+
+        writeln("src = ", src);
+        writeln("dst = ", dst);
+        writeln("arrays_list = ", arrays_list);
         
         // Get graph for usage and needed arrays.
         var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
@@ -1627,15 +1632,22 @@ module GraphMsg {
         var src_actual = toSymEntry(graph.getComp("SRC"), int).a;
         var dst_actual = toSymEntry(graph.getComp("DST"), int).a;
 
+        writeln("src_actual = ", src_actual);
+        writeln("dst_actual = ", dst_actual);
+        writeln("neighbor = ", neighbor);
+        writeln("start_idx = ", start_idx);
+        writeln("node_map_r = ", node_map_r);
+
         // Create array of lists to store edge_props and populate it. 
         var edge_props: [src_actual.domain] list(string, parSafe=true);
         if(graph.hasComp("EDGE_PROPS")) {
             edge_props = toSymEntry(graph.getComp("EDGE_PROPS"), list(string, parSafe=true)).a;
         }
 
+        writeln("edge_props = ", edge_props);
         forall x in 2..arrays_list.size - 1 {
             var curr_prop_arr:SegString = getSegString(arrays_list[x], st);
-            forall (i,j) in zip(src.domain, dst.domain) with (ref edge_props, ref curr_prop_arr) {
+            forall (i,j) in zip(src.domain, dst.domain) {
                 var u = node_map_r[src[i]];
                 var v = node_map_r[dst[j]];
 
@@ -1645,7 +1657,7 @@ module GraphMsg {
                 var neighborhood = dst_actual[start..end-1];
                 var ind = bin_search_v(neighborhood, neighborhood.domain.lowBound, neighborhood.domain.highBound, v);
 
-                edge_props[ind].append(curr_prop_arr[i]); // or j
+                edge_props[ind].append(cols_list[x] + " : " + curr_prop_arr[i]); // or j
             }
         }
         writeln("edge_props = ", edge_props);

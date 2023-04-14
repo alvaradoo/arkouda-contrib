@@ -2,6 +2,7 @@ module Utils {
     // Chapel modules.
     use IO;
     use Map;
+    use List;
 
     // Arachne modules.
     use GraphArray;
@@ -23,62 +24,33 @@ module Utils {
     /**
     * Print graph data structure server-side to visualize the raw array data.
     *
-    * nei: neighbor array
-    * start_i: starting edge array location given vertex v
-    * src: source array
-    * dst: destination array
-    * neiR: reversed neighbor array
-    * start_iR: reversed starting edge array location given vertex v
-    * srcR: reversed source array
-    * dstR: reversed destination array
-    * weight: edge weight array
-    * weightR: reversed edge weight array
+    * G: graph we want to print out. 
     *
     * returns: message back to Python.
     */
-    proc print_graph_serverside(nei: [?D1] int, start_i: [?D2] int, src: [?D3] int, dst: [?D4] int, 
-                                neiR: [?D5] int, start_iR: [?D6] int, srcR: [?D7] int, 
-                                dstR: [?D8] int, weight: [?D9] real, weightR: [?D10] real, 
-                                directed: bool, weighted: bool) throws {
-
-        if (directed && !weighted) {
-            writeln("DIRECTED AND UNWEIGHTED GRAPH:");
-            writeln("src       = ", src);
-            writeln("dst       = ", dst);
-            writeln("nei       = ", nei);
-            writeln("start_i   = ", start_i);
-        }
-        if (directed && weighted) {
-            writeln("DIRECTED AND WEIGHTED GRAPH:");
-            writeln("src       = ", src);
-            writeln("dst       = ", dst);
-            writeln("nei       = ", nei);
-            writeln("start_i   = ", start_i);
-            writeln("e_weight  = ", weight);
-        }
-        if (!directed && !weighted) {
-            writeln("UNDIRECTED AND UNWEIGHTED GRAPH:");
-            writeln("src       = ", src);
-            writeln("dst       = ", dst);
-            writeln("srcR      = ", srcR); 
-            writeln("dstR      = ", dstR);
-            writeln("nei       = ", nei);
-            writeln("neiR      = ", neiR);
-            writeln("start_i   = ", start_i);
-            writeln("start_iR  = ", start_iR);
-        }
-        if (!directed && weighted) {
-            writeln("UNDIRECTED AND WEIGHTED GRAPH:");
-            writeln("src       = ", src);
-            writeln("dst       = ", dst);
-            writeln("srcR      = ", srcR); 
-            writeln("dstR      = ", dstR);
-            writeln("nei       = ", nei);
-            writeln("neiR      = ", neiR);
-            writeln("start_i   = ", start_i);
-            writeln("start_iR  = ", start_iR);
-            writeln("e_weight  = ", weight);
-            writeln("e_weightR = ", weightR);
+    proc print_graph_serverside(G: borrowed SegGraph) throws {
+        for comp in Component {
+            var curr_comp = comp:string;
+            if G.hasComp(curr_comp) {
+                select curr_comp {
+                    when "RELATIONSHIPS", "NODE_LABELS", "NODE_PROPS", "EDGE_PROPS" {
+                        var X = toSymEntry(G.getComp(comp:string), list(string, parSafe=true)).a;
+                        writeln(comp:string, " = ", X);
+                    }
+                    when "EDGE_WEIGHT", "EDGE_WEIGHT_R" {
+                        var X = toSymEntry(G.getComp(comp:string), real).a;
+                        writeln(comp:string, " = ", X);
+                    }
+                    when "NODE_MAP_R" {
+                        var X = toSymEntryAD(G.getComp("NODE_MAP_R")).a;
+                        writeln(comp:string, " = ", X);
+                    }
+                    otherwise {
+                        var X = toSymEntry(G.getComp(comp:string), int).a;
+                        writeln(comp:string, " = ", X);
+                    }
+                }
+            }
         }
     } // end of print_graph_serverside
 

@@ -509,12 +509,6 @@ module GraphMsg {
             }
         }
 
-        // Print for debugging server-side from Utils.chpl. 
-        if(debug_print) {
-            print_graph_serverside(neighbor, start_i, src, dst, neighborR, start_iR, srcR, dstR, 
-                                   e_weight, e_weightR, directed, weighted);
-        }
-
         // Add graph to the specific symbol table entry. 
         var graphEntryName = st.nextName();
         var graphSymEntry = new shared GraphSymEntry(graph);
@@ -804,12 +798,6 @@ module GraphMsg {
         // Finish building graph data structure.
         var graph = new shared SegGraph(ne, nv, directed, weighted);
         if (new_ne < ne) { // Different arrays for when edges had to be removed.
-            // Print for debugging server-side from Utils.chpl. 
-            if(debug_print) {
-                print_graph_serverside(myneighbor, mystart_i, mysrc, mydst, myneighborR, mystart_iR, mysrcR, mydstR, 
-                                    mye_weight, mye_weightR, directed, weighted);
-            }
-
             graph.withComp(new shared SymEntry(mysrc):GenSymEntry, "SRC")
                 .withComp(new shared SymEntry(mydst):GenSymEntry, "DST")
                 .withComp(new shared SymEntry(mystart_i):GenSymEntry, "START_IDX")
@@ -832,12 +820,6 @@ module GraphMsg {
                 }
             }
         } else { // No edge removals.
-            // Print for debugging server-side from Utils.chpl. 
-            if(debug_print) {
-                print_graph_serverside(neighbor, start_i, src, dst, neighborR, start_iR, srcR, dstR, 
-                                    e_weight, e_weightR, directed, weighted);
-            }
-
             graph.withComp(new shared SymEntry(src):GenSymEntry, "SRC")
                 .withComp(new shared SymEntry(dst):GenSymEntry, "DST")
                 .withComp(new shared SymEntry(start_i):GenSymEntry, "START_IDX")
@@ -1126,12 +1108,6 @@ module GraphMsg {
         // Finish building graph data structure.
         var graph = new shared SegGraph(ne, nv, directed, weighted);
         if (new_ne < ne) { // Different arrays for when edges had to be removed.
-            // Print for debugging server-side from Utils.chpl. 
-            if(debug_print) {
-                print_graph_serverside(myneighbor, mystart_i, mysrc, mydst, myneighborR, mystart_iR, mysrcR, mydstR, 
-                                    mye_weight, mye_weightR, directed, weighted);
-            }
-
             graph.withComp(new shared SymEntry(mysrc):GenSymEntry, "SRC")
                 .withComp(new shared SymEntry(mydst):GenSymEntry, "DST")
                 .withComp(new shared SymEntry(mystart_i):GenSymEntry, "START_IDX")
@@ -1154,12 +1130,6 @@ module GraphMsg {
                 }
             }
         } else { // No edge removals.
-            // Print for debugging server-side from Utils.chpl. 
-            if(debug_print) {
-                print_graph_serverside(neighbor, start_i, src, dst, neighborR, start_iR, srcR, dstR, 
-                                    e_weight, e_weightR, directed, weighted);
-            }
-
             graph.withComp(new shared SymEntry(src):GenSymEntry, "SRC")
                 .withComp(new shared SymEntry(dst):GenSymEntry, "DST")
                 .withComp(new shared SymEntry(start_i):GenSymEntry, "START_IDX")
@@ -1570,8 +1540,6 @@ module GraphMsg {
                 node_props[node_map_r[nodes_arr[j]]].append(cols_list[i] + " : " + curr_prop_arr[j]);
             }   
         }
-        
-        writeln("node_props = ", node_props);
         // Add the component for the node labels for the graph. 
         graph.withComp(new shared SymEntry(node_props):GenSymEntry, "NODE_PROPS");
         timer.stop();
@@ -1618,10 +1586,6 @@ module GraphMsg {
 
         var timer:stopwatch;
         timer.start();
-
-        writeln("src = ", src);
-        writeln("dst = ", dst);
-        writeln("arrays_list = ", arrays_list);
         
         // Get graph for usage and needed arrays.
         var gEntry: borrowed GraphSymEntry = getGraphSymEntry(graphEntryName, st); 
@@ -1632,19 +1596,12 @@ module GraphMsg {
         var src_actual = toSymEntry(graph.getComp("SRC"), int).a;
         var dst_actual = toSymEntry(graph.getComp("DST"), int).a;
 
-        writeln("src_actual = ", src_actual);
-        writeln("dst_actual = ", dst_actual);
-        writeln("neighbor = ", neighbor);
-        writeln("start_idx = ", start_idx);
-        writeln("node_map_r = ", node_map_r);
-
         // Create array of lists to store edge_props and populate it. 
         var edge_props: [src_actual.domain] list(string, parSafe=true);
         if(graph.hasComp("EDGE_PROPS")) {
             edge_props = toSymEntry(graph.getComp("EDGE_PROPS"), list(string, parSafe=true)).a;
         }
 
-        writeln("edge_props = ", edge_props);
         forall x in 2..arrays_list.size - 1 {
             var curr_prop_arr:SegString = getSegString(arrays_list[x], st);
             forall (i,j) in zip(src.domain, dst.domain) {
@@ -1660,7 +1617,6 @@ module GraphMsg {
                 edge_props[ind].append(cols_list[x] + " : " + curr_prop_arr[i]); // or j
             }
         }
-        writeln("edge_props = ", edge_props);
         
         // Add the component for the node labels for the graph. 
         graph.withComp(new shared SymEntry(edge_props):GenSymEntry, "EDGE_PROPS");
